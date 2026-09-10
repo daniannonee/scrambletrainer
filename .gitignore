@@ -1,0 +1,27 @@
+node_modules/
+android/
+
+# Screenshots delivered into the project folder by Claude — working material,
+# not part of the app.
+Claude outputs/
+tools/vendor/
+tools/shots/
+package-lock.json
+
+# docs/ is NOT ignored, on purpose.
+#
+# It is build output, so the instinct is to ignore it and let the host run
+# `node tools/build_www.js`. Two reasons not to:
+#
+#   1. package.json declares Capacitor, so a host that auto-installs would pull
+#      ~29MB of Android tooling to serve a static site, and any hiccup there
+#      fails the deploy.
+#   2. Committing the build means the bytes that go live are exactly the ones
+#      tools/pwa_check.js verified — no build environment in between that
+#      nobody has tested.
+#
+# So the deploy has NO build step. GitHub Pages serves docs/ on main directly;
+# that folder is named docs/ and not www/ only because Pages will serve a
+# branch's root or its /docs and nothing else. Run `node tools/build_www.js`
+# before committing; it stamps sw.js with a content hash, so the cache busts
+# itself.

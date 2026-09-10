@@ -1,0 +1,23 @@
+{
+  "name": "word-trainer",
+  "version": "0.1.0",
+  "private": true,
+  "description": "A guided path through the word groups that decide word games.",
+  "scripts": {
+    "data": "python3 tools/build_data.py && python3 tools/build_derived.py",
+    "www": "node tools/build_www.js",
+    "test": "node tools/test.js",
+    "walk": "node tools/walk.js",
+    "sync": "node tools/build_www.js && cap sync android",
+    "android": "node tools/build_www.js && cap sync android && cap open android",
+    "apk": "node tools/build_www.js && cap sync android && cd android && ./gradlew assembleDebug",
+    "test:board": "node tools/test_board.js"
+  },
+  "devDependencies": {
+    "@capacitor/cli": "^8.5.1"
+  },
+  "dependencies": {
+    "@capacitor/android": "^8.5.1",
+    "@capacitor/core": "^8.5.1"
+  }
+}

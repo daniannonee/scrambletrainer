@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="color-scheme" content="light dark" />
+    <title>Word trainer</title>
+    <meta
+      name="description"
+      content="A guided path through the word groups that decide word games."
+    />
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 64 64%27%3E%3Crect width=%2764%27 height=%2764%27 rx=%2712%27 fill=%27%232f6b4f%27/%3E%3Ctext x=%2732%27 y=%2745%27 font-family=%27Georgia,serif%27 font-size=%2740%27 text-anchor=%27middle%27 fill=%27%23eef0ea%27%3EW%3C/text%3E%3C/svg%3E" />
+    <!-- Home-screen install. iOS reads apple-touch-icon and the apple- meta
+         tags rather than the manifest for most of this, so both are present. -->
+    <link rel="manifest" href="manifest.webmanifest" />
+    <link rel="apple-touch-icon" href="icons/icon-180.png" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="apple-mobile-web-app-title" content="Word trainer" />
+    <meta name="theme-color" content="#e8eae3" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#141613" media="(prefers-color-scheme: dark)" />
+
+    <link rel="stylesheet" href="fonts/fraunces.css" />
+    <link rel="stylesheet" href="css/app.css" />
+  </head>
+  <body>
+    <main class="app" id="app"></main>
+    <div id="live" aria-live="polite" class="visually-hidden"
+      style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap"></div>
+
+    <!-- Data first: plain scripts, no modules, so the app also runs from file://
+         and inside a Capacitor WebView without any build step. -->
+    <script src="data/lexicon.js"></script>
+    <script src="data/definitions.js"></script>
+    <script src="data/defs_auto.js"></script>
+    <script src="data/tiers.js"></script>
+    <script src="data/lexicon_long.js"></script>
+    <script src="data/daily.js"></script>
+    <script src="data/strategy.js"></script>
+
+    <script src="js/lexicon.js"></script>
+    <script src="js/defs.js"></script>
+    <script src="js/trie.js"></script>
+    <script src="js/board.js"></script>
+    <script src="js/movegen.js"></script>
+    <script src="js/daily.js"></script>
+    <script src="js/game.js"></script>
+    <script src="js/opponent.js"></script>
+    <script src="js/leave.js"></script>
+    <script src="js/strategy.js"></script>
+    <script src="js/stems.js"></script>
+    <script src="js/anagrams.js"></script>
+    <script src="js/groups.js"></script>
+    <script src="js/storage.js"></script>
+    <script src="js/review.js"></script>
+    <script src="js/quiz.js"></script>
+    <script src="js/levels.js"></script>
+    <script src="js/ui.js"></script>
+    <script src="js/screens/home.js"></script>
+    <script src="js/screens/path.js"></script>
+    <script src="js/screens/teach.js"></script>
+    <script src="js/screens/quiz.js"></script>
+    <script src="js/screens/stems.js"></script>
+    <script src="js/screens/drill.js"></script>
+    <script src="js/screens/boardui.js"></script>
+    <script src="js/screens/daily.js"></script>
+    <script src="js/screens/review.js"></script>
+    <script src="js/screens/game.js"></script>
+    <script src="js/screens/stats.js"></script>
+    <script src="js/screens/strategy.js"></script>
+    <script src="js/app.js"></script>
+
+    <script>
+      /* Register the offline worker, but only where it can actually work.
+         Service workers need a secure context — https or localhost — so this is
+         a no-op when the file is double-clicked from disk, which has to keep
+         working. Any failure is swallowed: offline support is a bonus, and an
+         unhandled rejection in the console is not. */
+      if ("serviceWorker" in navigator && location.protocol !== "file:") {
+        window.addEventListener("load", function () {
+          navigator.serviceWorker.register("sw.js").catch(function () {});
+        });
+      }
+    </script>
+  </body>
+</html>

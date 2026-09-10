@@ -1,0 +1,35 @@
+{
+  "_comment": [
+    "Words that are valid in the current North American tournament list (NWL2023)",
+    "but absent from ENABLE. Merged into data/lexicon.js by tools/build_data.py.",
+    "",
+    "This is a small factual patch, not an import of a copyrighted list: it is the",
+    "eleven two-letter words ENABLE lacks, plus the plural forms of those eleven.",
+    "The ENABLE list itself remains the lexicon. Every entry cites where it was",
+    "checked. See PROVENANCE.md for the reasoning and for what is still missing."
+  ],
+  "sources": {
+    "twos": {
+      "name": "Mike Wolfberg, NWL2023 two-letter words with definitions",
+      "url": "https://wolfberg.net/scrabble/wordlists/NWL2023/twos/",
+      "retrieved": "2026-09-08",
+      "check": "Page states 107 two-letter words; ENABLE has 96; the difference is exactly the eleven below."
+    },
+    "threes": {
+      "name": "Mike Baron & Seth Lipkin, NWL23 Cheat Sheet (cross-tables.com)",
+      "url": "https://www.cross-tables.com/download/CHEAT_NWL23.pdf",
+      "retrieved": "2026-09-08",
+      "check": "Each plural below was found in the sheet's three-letter list. OIS, OKS and EWS were looked for and are NOT there, so they are not added."
+    }
+  },
+  "add": {
+    "twos": ["da", "ew", "fe", "gi", "ki", "oi", "ok", "po", "qi", "te", "za"],
+    "threes": ["das", "fes", "gis", "kis", "pos", "qis", "tes", "zas"]
+  },
+  "deliberately_not_added": {
+    "ois": "not in the NWL23 cheat sheet's three-letter list",
+    "oks": "not in the NWL23 cheat sheet's three-letter list",
+    "ews": "not in the NWL23 cheat sheet's three-letter list",
+    "_note": "These stay in the AMBIGUOUS set in js/quiz.js instead, so they are never shown as decoys."
+  }
+}
