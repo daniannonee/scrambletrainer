@@ -13,7 +13,7 @@
 
    Nothing here talks to the network at runtime beyond fetching these files;
    the app itself makes no requests at all once it has loaded. */
-var VERSION = "wordtrainer-9ad61c51ce41";
+var VERSION = "wordtrainer-843c7dd0169b";
 
 var SHELL = [
   "./",

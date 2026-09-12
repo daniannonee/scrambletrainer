@@ -4,7 +4,31 @@
 
   var el = WT.ui.el;
   var clear = WT.ui.clear;
-  var FEEDBACK_MS = 750;
+  /* How long the verdict stays up.
+
+     It used to be a flat 750ms, which was backwards: the longer the definition
+     — the more there was to learn — the less chance you had of reading it. A
+     tester hit exactly that. Two rules now:
+
+       - Got it WRONG: the screen waits for you. That is the moment the
+         definition matters most, and a forced pause is the point rather than
+         an annoyance.
+       - Got it RIGHT: it moves on by itself, but the delay scales with how much
+         there is to read, so "Right, not a word." goes quickly and a real
+         definition gets time.
+
+     Either way a tap or any key skips ahead, so nobody is held up. */
+  var FEEDBACK_MIN = 900;
+  var FEEDBACK_PER_CHAR = 30;
+  var FEEDBACK_MAX = 4200;
+
+  function dwellFor(text, correct) {
+    if (!correct) return null; // null means: wait for the player
+    // Settings can make every answer wait, for anyone who finds the auto-advance
+    // rushed — the same complaint that produced this function in the first place.
+    if (WT.profile && WT.profile.setting("pace") === "wait") return null;
+    return Math.min(FEEDBACK_MAX, FEEDBACK_MIN + String(text).length * FEEDBACK_PER_CHAR);
+  }
 
   function definitionOf(word) {
     var d = WT.defs.get(word);
@@ -68,6 +92,21 @@
     );
 
     var locked = false;
+    var advanceTimer = null;
+    var pendingAdvance = null;
+
+    /* Move to the next question. Safe to call twice — the timer and a tap can
+       both fire, and the second must be a no-op rather than skipping a word. */
+    function advance() {
+      if (!pendingAdvance) return;
+      window.clearTimeout(advanceTimer);
+      advanceTimer = null;
+      var go = pendingAdvance;
+      pendingAdvance = null;
+      locked = false;
+      clear(verdict);
+      go();
+    }
 
     function paint() {
       var item = session.current();
@@ -107,12 +146,26 @@
         el("span", {}, [record.correct ? el("b", { text: "Correct. " }) : el("b", { text: "Missed. " }), msg])
       );
 
-      window.setTimeout(function () {
-        locked = false;
-        clear(verdict);
+      pendingAdvance = function () {
         if (session.done()) finish();
         else paint();
-      }, FEEDBACK_MS);
+      };
+
+      var ms = dwellFor(msg, record.correct);
+      if (ms == null) {
+        // Waiting on the player: say so, and give the tap a visible target.
+        verdict.appendChild(
+          el("button", {
+            class: "btn verdict-next",
+            type: "button",
+            text: session.done() ? "See the result" : "Next word",
+            onclick: advance
+          })
+        );
+        verdict.querySelector(".verdict-next").focus();
+      } else {
+        advanceTimer = window.setTimeout(advance, ms);
+      }
     }
 
     yes.addEventListener("click", function () {
@@ -123,17 +176,27 @@
     });
 
     function onKey(e) {
+      // While a verdict is up, every key means "I have read it, go on".
+      if (locked) {
+        if (e.key === "Tab") return;
+        e.preventDefault();
+        advance();
+        return;
+      }
       if (e.key === "ArrowRight") answer(true);
       else if (e.key === "ArrowLeft") answer(false);
       else return;
       e.preventDefault();
     }
     document.addEventListener("keydown", onKey);
+    // Tapping the word area skips the wait too — on a phone there is no keyboard.
+    stage.addEventListener("click", advance);
     /* Handed back so the router can detach it when the screen goes away. This
        is a local, not a property on the function: run() has two callers now,
        and a shared slot would let one screen's teardown overwrite another's. */
     var teardown = function () {
       document.removeEventListener("keydown", onKey);
+      window.clearTimeout(advanceTimer);
     };
 
     paint();

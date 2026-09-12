@@ -10,23 +10,37 @@
       teardown();
       teardown = null;
     }
+    // Any guard belonged to the screen being replaced.
+    if (WT.shell) WT.shell.clearGuard();
     WT.ui.clear(root);
     fn();
     window.scrollTo(0, 0);
   }
 
+  /* The three tabs. Each is a top-level screen; everything else is reached
+     from inside one of them and returns to it. */
   function showHome() {
+    WT.shell.go("play");
+  }
+
+  function renderPlay() {
     swap(function () {
-      WT.screens.home.render(root, openMode, showStats);
+      WT.screens.home.render(root, openMode);
       document.title = "Word trainer";
     });
   }
 
-  /* Not a mode: a look at what the modes have recorded. */
-  function showStats() {
+  function renderFriends() {
     swap(function () {
-      WT.screens.stats.render(root, showHome);
-      document.title = "Your progress";
+      WT.screens.friends.render(root, showHome);
+      document.title = "Friends";
+    });
+  }
+
+  function renderProfile() {
+    swap(function () {
+      WT.screens.profile.render(root);
+      document.title = "Profile";
     });
   }
 
@@ -72,6 +86,9 @@
     WT.currentGame = game;
     swap(function () {
       teardown = WT.screens.game.renderGame(root, game, levelId, showGameOver, showGameMenu);
+      WT.shell.setGuard(function () {
+        return window.confirm("Leave this game? It will not be saved.");
+      });
       document.title = "Game — " + WT.opponent.levelById(levelId).name;
     });
   }
@@ -132,6 +149,9 @@
 
   function showDrill(length) {
     swap(function () {
+      WT.shell.setGuard(function () {
+        return window.confirm("Leave the drill? This round won't be scored.");
+      });
       teardown = WT.screens.drill.renderRound(
         root,
         length,
@@ -218,6 +238,9 @@
           if (window.confirm("Leave the quiz? This attempt won't be scored.")) showPath();
         }
       );
+      WT.shell.setGuard(function () {
+        return window.confirm("Leave the quiz? This attempt won't be scored.");
+      });
       document.title = level.title + " — quiz";
     });
   }
@@ -258,7 +281,9 @@
         "the folder over http instead.";
       return;
     }
-    showHome();
+    WT.shell.mount({
+      handlers: { play: renderPlay, friends: renderFriends, profile: renderProfile }
+    });
   }
 
   if (document.readyState === "loading") {

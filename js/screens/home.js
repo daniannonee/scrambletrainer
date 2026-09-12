@@ -168,15 +168,11 @@
 
     root.appendChild(
       el("header", { class: "masthead home-masthead" }, [
-        el("h1", { text: "Word trainer" }),
-        el("p", { text: "Get better at word games, one group at a time." }),
-        onStats
-          ? el("p", { class: "masthead-link" }, [
-              el("button", {
-                class: "btn-ghost", type: "button", text: "Your progress →", onclick: onStats
-              })
-            ])
-          : null
+        el("div", { class: "topbar" }, [
+          el("h1", { text: "Word trainer" }),
+          WT.shell ? WT.shell.menuButton() : null
+        ]),
+        el("p", { text: "Get better at word games, one group at a time." })
       ])
     );
 
@@ -248,34 +244,6 @@
 
     root.appendChild(list);
 
-    root.appendChild(
-      el("footer", { class: "colophon" }, [
-        el("p", {
-          text:
-            "Word list: ENABLE (public domain) plus 19 words it lacks, " +
-            WT.lex.count().toLocaleString("en-US") +
-            " in total, 1–8 letters. Commonness tiers from SCOWL, " +
-            "Copyright 2000–2018 Kevin Atkinson. Some definitions from " +
-            "WordNet 3.0, Copyright 2006 Princeton University; the rest written " +
-            "for this app. Set in Fraunces, Copyright 2018 The Fraunces Project " +
-            "Authors, SIL Open Font License 1.1. Full notices in LICENSES.md. " +
-            "Not affiliated with, or endorsed by, any commercial word game."
-        }),
-        el("p", { style: "margin-left:-10px" }, [
-          el("button", {
-            class: "btn-ghost",
-            type: "button",
-            text: "Reset all progress",
-            onclick: function () {
-              if (window.confirm("Erase all progress and start the path again?")) {
-                WT.store.reset();
-                render(root, open, onStats);
-              }
-            }
-          })
-        ])
-      ])
-    );
   }
 
   WT.screens = WT.screens || {};

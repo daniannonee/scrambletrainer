@@ -48,6 +48,7 @@ const FILES = [
   "js/opponent.js",
   "js/leave.js",
   "js/strategy.js",
+  "js/profile.js",
   "js/lexicon.js",
   "js/defs.js",
   "js/stems.js",
@@ -58,6 +59,7 @@ const FILES = [
   "js/levels.js",
   "js/ui.js",
   "js/app.js",
+  "js/screens/shell.js",
   "js/screens/home.js",
   "js/screens/path.js",
   "js/screens/teach.js",
@@ -69,6 +71,8 @@ const FILES = [
   "js/screens/review.js",
   "js/screens/game.js",
   "js/screens/stats.js",
+  "js/screens/friends.js",
+  "js/screens/profile.js",
   "js/screens/strategy.js"
 ];
 

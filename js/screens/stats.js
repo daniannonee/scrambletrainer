@@ -56,15 +56,22 @@
     return wrap;
   }
 
-  function render(root, onHome) {
+  /* `opts.embedded` means the profile tab is rendering this inside itself: no
+     top bar, no heading, no "back home" — it already has all three. The figures
+     below are identical either way, which is the point of not writing them
+     twice. */
+  function render(root, onHome, opts) {
+    var o = opts || {};
     clear(root);
 
-    root.appendChild(
-      el("div", { class: "topbar" }, [
-        el("button", { class: "btn-ghost", type: "button", text: "← Home", onclick: onHome })
-      ])
-    );
-    root.appendChild(el("h2", { text: "Your progress" }));
+    if (!o.embedded) {
+      root.appendChild(
+        el("div", { class: "topbar" }, [
+          el("button", { class: "btn-ghost", type: "button", text: "← Home", onclick: onHome })
+        ])
+      );
+      root.appendChild(el("h2", { text: "Your progress" }));
+    }
 
     var anything = false;
 
@@ -200,11 +207,13 @@
       );
     }
 
-    root.appendChild(
-      el("div", { class: "result-actions" }, [
-        el("button", { class: "btn btn-primary", type: "button", text: "Back home", onclick: onHome })
-      ])
-    );
+    if (!o.embedded) {
+      root.appendChild(
+        el("div", { class: "result-actions" }, [
+          el("button", { class: "btn btn-primary", type: "button", text: "Back home", onclick: onHome })
+        ])
+      );
+    }
   }
 
   WT.screens = WT.screens || {};

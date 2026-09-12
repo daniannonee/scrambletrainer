@@ -51,7 +51,7 @@
 }
 
 @media (prefers-color-scheme: dark) {
-  :root {
+:root:not([data-theme="light"]) {
     --ground: #141613;
     --ground-2: #1c1f1b;
     --sunk: #0f110e;
@@ -70,6 +70,7 @@
     --gold: #d8a441;
     --wrong: #e07561;
   }
+
 }
 
 * {
@@ -133,12 +134,13 @@ button {
 }
 
 @media (prefers-color-scheme: dark) {
-  .tile-face {
+:root:not([data-theme="light"]) .tile-face {
     box-shadow:
       inset -1px -1px 0 var(--tile-edge),
       inset 1px 1px 0 rgba(255, 255, 255, 0.06),
       0 1px 0 var(--tile-shade);
   }
+
 }
 
 .tile-value {
@@ -1209,10 +1211,11 @@ h3 {
 .bsq.is-tw { background: #c7b483; background: color-mix(in srgb, var(--gold) 42%, var(--ground-2)); }
 
 @media (prefers-color-scheme: dark) {
-  .bsq.is-dl { background: #26332a; background: color-mix(in srgb, var(--go) 14%, var(--ground-2)); }
-  .bsq.is-tl { background: #314b3b; background: color-mix(in srgb, var(--go) 30%, var(--ground-2)); }
-  .bsq.is-dw { background: #423a23; background: color-mix(in srgb, var(--gold) 20%, var(--ground-2)); }
-  .bsq.is-tw { background: #6b572b; background: color-mix(in srgb, var(--gold) 42%, var(--ground-2)); }
+:root:not([data-theme="light"]) .bsq.is-dl { background: #26332a; background: color-mix(in srgb, var(--go) 14%, var(--ground-2)); }
+:root:not([data-theme="light"]) .bsq.is-tl { background: #314b3b; background: color-mix(in srgb, var(--go) 30%, var(--ground-2)); }
+:root:not([data-theme="light"]) .bsq.is-dw { background: #423a23; background: color-mix(in srgb, var(--gold) 20%, var(--ground-2)); }
+:root:not([data-theme="light"]) .bsq.is-tw { background: #6b572b; background: color-mix(in srgb, var(--gold) 42%, var(--ground-2)); }
+
 }
 
 /* The star belongs to the empty square, not to whatever gets played on it. */
@@ -1765,3 +1768,418 @@ button.bsq:not(:disabled):hover {
 
 .leave-reasons li.is-good .leave-delta { color: var(--go); }
 .leave-reasons li.is-bad .leave-delta { color: var(--wrong); }
+
+/* --- the display face, made readable ----------------------------------- *
+
+   Reported by a tester: "the title font is beautiful but hard to read."
+   Correct, and the cause is not only tracking. Fraunces ships with WONK=1,
+   which gives it a curled `r` whose terminal collides with a preceding `e` —
+   at the tight tracking this file used, "trainer" read as "trainor". Its
+   optical-size axis also tracks the font-size by default, so a 52px heading
+   renders in the high-contrast display cut, all hairlines.
+
+   The same family of defaults already forced numerals out of Fraunces (its 3
+   reads as a 5). The conclusion is consistent: Fraunces' display defaults are
+   beautiful at poster sizes and unreliable at UI sizes, so the app pins the
+   axes rather than accepting them.
+
+   tools/shots/title.png is the comparison this was chosen from.              */
+
+h1, h2, h3,
+.mode-title, .choice-word, .quiz-word, .tier-name, .leave-tiles {
+  letter-spacing: 0.02em;
+  font-variation-settings: "opsz" 14, "wght" 500, "WONK" 0;
+}
+
+/* The masthead is the largest type in the app and the first thing anyone
+   reads, so it gets a touch more air still. */
+.masthead h1 {
+  letter-spacing: 0.025em;
+}
+
+/* Tiles are single letters — no collision risk, and the wonky cut is the
+   charm of the thing. Left alone deliberately. */
+.tile-face {
+  letter-spacing: 0;
+  font-variation-settings: normal;
+}
+
+/* The "I've read it" button, shown only when an answer was missed. */
+.verdict-next {
+  display: block;
+  margin: 12px auto 0;
+  padding: 9px 18px;
+  font-size: 14px;
+}
+
+/* --- the tab bar -------------------------------------------------------- *
+   Fixed to the bottom and present on every screen, including mid-game — see
+   js/screens/shell.js for why it does not hide itself. safe-area-inset keeps
+   it clear of the iPhone home indicator.                                    */
+
+.tabbar {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 40;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  background: var(--ground);
+  border-top: 1px solid var(--rule);
+  padding-bottom: env(safe-area-inset-bottom, 0);
+}
+
+.tabbtn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  padding: 8px 4px 7px;
+  background: none;
+  border: 0;
+  color: var(--ink-3);
+}
+
+.tabbtn.is-on {
+  color: var(--ink);
+}
+
+.tabtile {
+  width: 30px;
+  height: 30px;
+  font-size: 17px;
+  opacity: 0.55;
+  transition: opacity 0.15s ease, transform 0.15s ease;
+}
+
+.tabbtn.is-on .tabtile {
+  opacity: 1;
+  transform: translateY(-1px);
+}
+
+.tablabel {
+  font-size: 11px;
+  font-weight: 550;
+  letter-spacing: 0.01em;
+}
+
+/* The bar sits over the page, so every screen needs room beneath it. */
+.app {
+  padding-bottom: calc(84px + env(safe-area-inset-bottom, 0));
+}
+
+.tabtitle {
+  font-size: clamp(26px, 7vw, 34px);
+  margin: 0;
+  line-height: 1.05;
+}
+
+/* --- the stack button --------------------------------------------------- */
+
+.stackbtn {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 4px;
+  width: 42px;
+  height: 42px;
+  padding: 0 9px;
+  background: none;
+  border: 0;
+  flex: none;
+}
+
+.stackbar {
+  display: block;
+  height: 2px;
+  background: var(--ink-2);
+  border-radius: 1px;
+}
+
+.stackbtn:hover .stackbar {
+  background: var(--ink);
+}
+
+/* --- sheets (menu, settings, help) -------------------------------------- */
+
+.sheet {
+  max-width: 460px;
+}
+
+.sheet-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+.sheet-head .picker-title {
+  margin: 0;
+}
+
+.sheet-body {
+  max-height: 62vh;
+  overflow-y: auto;
+}
+
+.sheet-done {
+  width: 100%;
+  margin-top: 14px;
+}
+
+.sheet-row {
+  display: block;
+  width: 100%;
+  text-align: left;
+  background: none;
+  border: 0;
+  border-top: 1px solid var(--rule);
+  padding: 15px 0;
+}
+
+.sheet-row:last-child {
+  border-bottom: 1px solid var(--rule);
+}
+
+.sheet-row-label {
+  display: block;
+  font-family: var(--display);
+  font-size: 20px;
+}
+
+.sheet-row-note {
+  display: block;
+  font-size: 13px;
+  color: var(--ink-2);
+}
+
+.sheet-text {
+  font-size: 14px;
+  color: var(--ink-2);
+  margin: 0 0 12px;
+}
+
+.help-item {
+  border-top: 1px solid var(--rule);
+  padding: 12px 0;
+}
+
+.help-item h4 {
+  font-family: var(--display);
+  font-weight: 400;
+  font-size: 19px;
+  margin: 0 0 3px;
+}
+
+.help-item p {
+  margin: 0;
+  font-size: 14px;
+  color: var(--ink-2);
+}
+
+/* --- settings controls -------------------------------------------------- */
+
+.setting {
+  border-top: 1px solid var(--rule);
+  padding: 16px 0;
+}
+
+.setting-label {
+  margin: 0 0 2px;
+  font-weight: 600;
+  font-size: 15px;
+}
+
+.setting-help {
+  margin: 0 0 10px;
+  font-size: 13px;
+  color: var(--ink-2);
+}
+
+.seg {
+  display: flex;
+  gap: 0;
+  border: 1px solid var(--rule);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.seg-btn {
+  flex: 1;
+  padding: 9px 6px;
+  background: none;
+  border: 0;
+  border-left: 1px solid var(--rule);
+  font-size: 13px;
+  color: var(--ink-2);
+}
+
+.seg-btn:first-child {
+  border-left: 0;
+}
+
+.seg-btn.is-on {
+  background: var(--go);
+  color: var(--go-ink);
+  font-weight: 600;
+}
+
+.setting-danger {
+  margin-top: 4px;
+  width: 100%;
+  border-color: var(--wrong);
+  color: var(--wrong);
+}
+
+/* --- profile ------------------------------------------------------------ */
+
+.profile-hello {
+  font-family: var(--display);
+  font-size: clamp(30px, 9vw, 44px);
+  line-height: 1.05;
+  margin: 14px 0 18px;
+  letter-spacing: 0.02em;
+  font-variation-settings: "opsz" 14, "wght" 500, "WONK" 0;
+}
+
+.nameinput,
+.codeinput {
+  width: 100%;
+  font: inherit;
+  font-size: 16px; /* 16px or iOS zooms the page on focus */
+  padding: 11px 12px;
+  background: var(--ground-2);
+  color: var(--ink);
+  border: 1px solid var(--rule);
+  border-radius: 3px;
+}
+
+.codeinput {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 13px;
+}
+
+/* --- friends ------------------------------------------------------------ */
+
+.sharecode {
+  display: block;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 12px;
+  line-height: 1.5;
+  word-break: break-all;
+  background: var(--ground-2);
+  border: 1px solid var(--rule);
+  border-radius: 3px;
+  padding: 10px 12px;
+  color: var(--ink-2);
+  user-select: all;
+}
+
+.share-note.is-bad {
+  color: var(--wrong);
+}
+
+.vs {
+  margin-top: 6px;
+}
+
+.vs-head,
+.vs-row {
+  display: grid;
+  grid-template-columns: 1fr 4.5ch 4.5ch;
+  gap: 10px;
+  align-items: baseline;
+  padding: 7px 0;
+  border-top: 1px solid var(--rule);
+}
+
+.vs-head {
+  border-top: 0;
+  padding-bottom: 4px;
+}
+
+.vs-label {
+  font-size: 13px;
+  color: var(--ink-2);
+  min-width: 0;
+}
+
+.vs-name {
+  font-size: 12px;
+  color: var(--ink-3);
+  text-align: right;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.vs-num {
+  font-family: var(--sans);
+  font-variant-numeric: tabular-nums;
+  font-size: 15px;
+  text-align: right;
+  color: var(--ink-3);
+}
+
+.vs-num.is-lead {
+  color: var(--go);
+  font-weight: 650;
+}
+
+/* --- settings that override the device ---------------------------------- */
+
+:root[data-theme="light"] {
+  color-scheme: light;
+}
+
+:root[data-motion="off"] *,
+:root[data-motion="off"] *::before,
+:root[data-motion="off"] *::after {
+  animation-duration: 0.001ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.001ms !important;
+}
+
+
+/* --- the theme setting -------------------------------------------------- *
+   The palette above switches on the OS preference. A player who picks Light or
+   Dark in Settings is overriding that, so every rule that responds to the OS
+   needs a counterpart keyed on data-theme — otherwise forcing Light on a dark
+   phone leaves the tile shadows and board tints dark, which looks like a bug
+   rather than a setting. Generated from the blocks above; if one of those
+   changes, this must change with it.                                         */
+
+:root[data-theme="dark"] {
+    --ground: #141613;
+    --ground-2: #1c1f1b;
+    --sunk: #0f110e;
+
+    --tile: #2b2822;
+    --tile-edge: #191712;
+    --tile-shade: rgba(0, 0, 0, 0.5);
+
+    --ink: #eceee6;
+    --ink-2: #a3a89b;
+    --ink-3: #767b70;
+    --rule: #2e322c;
+
+    --go: #63b087;
+    --go-ink: #0e1712;
+    --gold: #d8a441;
+    --wrong: #e07561;
+  }
+
+:root[data-theme="dark"] .tile-face {
+    box-shadow:
+      inset -1px -1px 0 var(--tile-edge),
+      inset 1px 1px 0 rgba(255, 255, 255, 0.06),
+      0 1px 0 var(--tile-shade);
+  }
+
+:root[data-theme="dark"] .bsq.is-dl { background: #26332a; background: color-mix(in srgb, var(--go) 14%, var(--ground-2)); }
+:root[data-theme="dark"] .bsq.is-tl { background: #314b3b; background: color-mix(in srgb, var(--go) 30%, var(--ground-2)); }
+:root[data-theme="dark"] .bsq.is-dw { background: #423a23; background: color-mix(in srgb, var(--gold) 20%, var(--ground-2)); }
+:root[data-theme="dark"] .bsq.is-tw { background: #6b572b; background: color-mix(in srgb, var(--gold) 42%, var(--ground-2)); }
+

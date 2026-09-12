@@ -20,6 +20,9 @@
       reviews: {}, // word -> { box, due, right, wrong, lastDay } — see js/review.js
       games: {}, // "steady" -> { played, won, drawn, bestScore, lastScore }
       strategy: {}, // puzzle index -> { correct, at }
+      profile: {}, // { name }
+      settings: {}, // see js/profile.js SETTINGS
+      friends: {}, // name -> { code, stats, at }
       updatedAt: null
     };
   }
@@ -60,6 +63,9 @@
             reviews: parsed.reviews || {},
             games: parsed.games || {},
             strategy: parsed.strategy || {},
+            profile: parsed.profile || {},
+            settings: parsed.settings || {},
+            friends: parsed.friends || {},
             updatedAt: parsed.updatedAt || null
           };
         }
@@ -242,6 +248,48 @@
     return s.strategy[index];
   }
 
+  /* Profile, settings and saved friend codes. All local; nothing here is ever
+     sent anywhere — a friend's stats arrive by the player pasting a string. */
+  function profile() {
+    return load().profile || {};
+  }
+
+  function setProfile(patch) {
+    var s = load();
+    s.profile = Object.assign(s.profile || {}, patch);
+    save();
+    return s.profile;
+  }
+
+  function settings() {
+    return load().settings || {};
+  }
+
+  function setSetting(key, value) {
+    var s = load();
+    s.settings[key] = value;
+    save();
+    return s.settings;
+  }
+
+  function friendsAll() {
+    return load().friends || {};
+  }
+
+  function saveFriend(name, record) {
+    var s = load();
+    s.friends[name] = Object.assign({ at: new Date().toISOString() }, record);
+    save();
+    return s.friends[name];
+  }
+
+  function removeFriend(name) {
+    var s = load();
+    delete s.friends[name];
+    save();
+    return s.friends;
+  }
+
   function reset() {
     state = fresh();
     if (canPersist) {
@@ -277,6 +325,13 @@
     strategyAll: strategyAll,
     strategySeen: strategySeen,
     recordStrategy: recordStrategy,
+    profile: profile,
+    setProfile: setProfile,
+    settings: settings,
+    setSetting: setSetting,
+    friendsAll: friendsAll,
+    saveFriend: saveFriend,
+    removeFriend: removeFriend,
     reset: reset
   };
 })(window.WT || (window.WT = {}));

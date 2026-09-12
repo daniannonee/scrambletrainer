@@ -10,6 +10,38 @@ const ROOT = path.dirname(__dirname);
 const OUT = path.join(__dirname, "shots");
 const URL = "file://" + path.join(ROOT, "index.html");
 
+
+/* Advance past the verdict, the way an impatient player does.
+
+   The quiz no longer moves on a fixed timer: a correct answer dwells in
+   proportion to how much there is to read, and a missed one waits for a press.
+   Sitting through every dwell would turn this suite from two minutes into ten,
+   so it taps to skip — which is what a real player does and is therefore worth
+   exercising anyway. Returns once the next question is up or the run ended. */
+async function afterAnswer(page, prevWord) {
+  // Wait for the verdict to actually appear, so the tap lands on something.
+  await page.waitForFunction(() => {
+    if (document.querySelector(".score")) return true;
+    const v = document.querySelector(".verdict");
+    return v && v.textContent.trim().length > 0;
+  }, { timeout: 15000 });
+  if (await page.$(".score")) return;
+
+  const btn = await page.$(".verdict-next");
+  if (btn) await btn.click();
+  else await page.click(".quiz-stage").catch(() => {});
+
+  await page.waitForFunction(
+    (w) => {
+      if (document.querySelector(".score")) return true;
+      const n = document.querySelector(".quiz-word");
+      return n && n.textContent.trim() !== w;
+    },
+    prevWord,
+    { timeout: 15000 }
+  );
+}
+
 (async () => {
   fs.mkdirSync(OUT, { recursive: true });
   const browser = await chromium.launch({ executablePath: "/opt/pw-browsers/chromium" });
@@ -69,9 +101,13 @@ const URL = "file://" + path.join(ROOT, "index.html");
         const w = (await page.textContent(".quiz-word")).trim();
         const valid = await page.evaluate((x) => window.WT.lex.has(x), w);
         await page.click(valid ? 'button:text("It\'s a word")' : 'button:text("Not a word")');
+        answered++;
+        await afterAnswer(page, w);
+        if (answered > 80) throw new Error("quiz did not end on level " + (i + 1));
+        continue;
       }
       answered++;
-      await page.waitForTimeout(isStem ? 960 : 800);
+      await page.waitForTimeout(960);
       if (answered > 80) throw new Error("quiz did not end on level " + (i + 1));
     }
 

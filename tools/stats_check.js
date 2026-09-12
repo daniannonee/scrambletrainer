@@ -26,11 +26,12 @@ const check = (name, ok, detail) => {
   page.on("console", (m) => m.type() === "error" && errors.push(m.text()));
 
   await page.goto(URL);
-  await page.waitForSelector(".mode-card");
+  await page.waitForSelector(".tabbar");
 
-  // Empty state first.
-  await page.click('button:text("Your progress →")');
-  await page.waitForSelector("h2");
+  /* The figures live on the Profile tab now — the stats screen renders itself
+     embedded inside it rather than existing twice. */
+  await page.$$eval(".tabbtn", (n) => n[2].click());
+  await page.waitForSelector(".profile-hello");
   const emptyLede = await page.textContent(".lede");
   check("a fresh install says there is nothing yet", /Nothing to show yet/.test(emptyLede), emptyLede.trim());
   check("no figures are invented on an empty install",
@@ -38,7 +39,7 @@ const check = (name, ok, detail) => {
 
   // Seed one of everything, through the real APIs.
   await page.goto(URL);
-  await page.waitForSelector(".mode-card");
+  await page.waitForSelector(".tabbar");
   const seeded = await page.evaluate(() => {
     const WT = window.WT;
     const levels = WT.levels.all();
@@ -75,8 +76,8 @@ const check = (name, ok, detail) => {
   });
 
   await page.reload();
-  await page.waitForSelector(".mode-card");
-  await page.click('button:text("Your progress →")');
+  await page.waitForSelector(".tabbar");
+  await page.$$eval(".tabbtn", (n) => n[2].click());
   await page.waitForSelector(".stat-list");
 
   const sections = await page.$$eval(".result-block h3", (n) => n.map((h) => h.textContent));
